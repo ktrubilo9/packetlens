@@ -1,10 +1,10 @@
 #include <packetlens/cli_options.hpp>
 #include <string_view>
-#include <iostream>
 
 namespace packetlens{ 
     
     class CliParser{
+        static void validate(const CliOptions& options);
     public:
         static CliOptions parse(int argc, char* argv[]);
 

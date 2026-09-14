@@ -3,9 +3,132 @@
 using packetlens::CliOptions;
 using packetlens::CliParser;
 
-CliOptions CliParser::parse(int argc, char* argv[]) {
+#include <getopt.h>
+#include <stdexcept>
+#include <iostream>
 
-    return {};
+CliOptions CliParser::parse(int argc, char* argv[]) {
+    CliOptions options;
+
+    // reset in case parse() is called more than once.
+    optind = 1;
+
+    const option longOptions[] = {
+        {"interface", required_argument, nullptr, 'i'},
+        {"read",      required_argument, nullptr, 'r'},
+        {"filter",    required_argument, nullptr, 'f'},
+        {"output",    required_argument, nullptr, 'o'},
+        {"count",     required_argument, nullptr, 'c'},
+        {"json",      no_argument,       nullptr, 'j'},
+        {"quiet",     no_argument,       nullptr, 'q'},
+        {"verbose",   no_argument,       nullptr, 'v'},
+        {"help",      no_argument,       nullptr, 'h'},
+        {"version",   no_argument,       nullptr, 'V'},
+        {nullptr,     0,                 nullptr,  0}
+    };
+
+    constexpr const char* shortOptions = "i:r:f:o:c:jqvhV";
+
+    while (true) {
+        const int option = getopt_long(
+            argc,
+            argv,
+            shortOptions,
+            longOptions,
+            nullptr
+        );
+
+        if (option == -1) {
+            break;
+        }
+
+        switch (option) {
+        case 'i':
+            options.interface = optarg;
+            break;
+        case 'r':
+            options.inputFile = optarg;
+            break;
+        case 'f':
+            options.filter = optarg;
+            break;
+        case 'o':
+            options.outputFile = optarg;
+            break;
+        case 'c':
+            try {
+                const auto count = std::stoull(optarg);
+                options.packet_count = static_cast<std::size_t>(count);
+            } catch (const std::exception&) {
+                throw std::invalid_argument(
+                    "invalid packet count: " + std::string(optarg)
+                );
+            }
+            break;
+        case 'j':
+            options.json = true;
+            break;
+        case 'q':
+            options.quiet = true;
+            break;
+        case 'v':
+            options.verbose = true;
+            break;
+        case 'h':
+            options.showHelp = true;
+            break;
+        case 'V':
+            options.showVersion = true;
+            break;
+        case '?':
+            if (optopt != 0) {
+                throw std::invalid_argument(
+                    "invalid option: -" + std::string(1, static_cast<char>(optopt))
+                );
+            }
+
+            throw std::invalid_argument(
+                "invalid command-line argument"
+            );
+        }
+    }
+
+    validate(options);
+
+    return options;
+}
+
+void CliParser::validate(const CliOptions& options) {
+    if (options.showHelp || options.showVersion) {
+        return;
+    }
+
+    const bool hasInterface = !options.interface.empty();
+    const bool hasInputFile = !options.inputFile.empty();
+
+    if (!hasInterface && !hasInputFile) {
+        throw std::invalid_argument(
+            "no input source specified; use --interface or --read"
+        );
+    }
+
+    if (hasInterface && hasInputFile) {
+        throw std::invalid_argument(
+            "--interface and --read cannot be used together"
+        );
+    }
+
+    if (!options.filter.empty() && !hasInterface) {
+        throw std::invalid_argument(
+            "--filter requires --interface"
+        );
+    }
+
+    if (options.verbose && options.quiet) {
+        throw std::invalid_argument(
+            "--verbose and --quiet cannot be used together"
+        );
+    }
 }
 
 void CliParser::printHelp(std::string_view programName)
@@ -13,12 +136,21 @@ void CliParser::printHelp(std::string_view programName)
     std::cout
         << "Usage: " << programName << " [OPTIONS]\n"
         << "\n"
-        << "Options:\n"
-        << "  -i, --interface <name>   Network interface to capture from\n"
-        << "  -f, --filter <expr>      Capture filter\n"
-        << "  -c, --count <number>     Stop after N packets\n"
-        << "  -h, --help               Show this help\n"
-        << "  -V, --version            Show version\n";
+        << "Input:\n"
+        << "  -i, --interface <name>   Capture packets from network interface\n"
+        << "  -r, --read <file>        Read packets from PCAP file\n"
+        << "  -f, --filter <expr>      Apply BPF capture filter (live capture only)\n"
+        << "\n"
+        << "Output:\n"
+        << "  -o, --output <file>      Write output to file\n"
+        << "  -j, --json               Output data in JSON format\n"
+        << "  -q, --quiet              Suppress normal output\n"
+        << "  -v, --verbose            Enable verbose output\n"
+        << "\n"
+        << "Other:\n"
+        << "  -c, --count <number>     Stop after N packets (0 = unlimited)\n"
+        << "  -h, --help               Show this help message\n"
+        << "  -V, --version            Show version information\n";
 }
 
 void CliParser::printVersion(std::string_view programName, std::string_view version)

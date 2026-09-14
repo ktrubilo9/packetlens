@@ -13,7 +13,8 @@ namespace packetlens{
         bool json{false};
         bool quiet{false};
         bool verbose{false};
-    };
 
-    
+        bool showHelp{false};
+        bool showVersion{false};
+    };
 }
