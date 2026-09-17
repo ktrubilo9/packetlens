@@ -1,6 +1,7 @@
 #include <filesystem>
 #include <iostream>
 #include <packetlens/cli.hpp>
+#include <packetlens/application.hpp>
 
 using packetlens::CliParser;
 
@@ -31,6 +32,6 @@ int run(int argc, char* argv[]) {
         return 0;
     }
 
-
-    return 0;
+    Application app;
+    return app.run(options);
 }

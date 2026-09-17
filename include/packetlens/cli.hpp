@@ -1,3 +1,6 @@
+#ifndef CLI_HPP
+#define CLI_HPP
+
 #include <packetlens/cli_options.hpp>
 #include <string_view>
 
@@ -12,3 +15,5 @@ namespace packetlens{
         static void printVersion(std::string_view programName, std::string_view version);
     };
 }
+
+#endif

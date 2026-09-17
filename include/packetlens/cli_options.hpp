@@ -1,3 +1,6 @@
+#ifndef CLI_OPTIONS_HPP
+#define CLI_OPTIONS_HPP
+
 #include <string>
 
 namespace packetlens{ 
@@ -18,3 +21,5 @@ namespace packetlens{
         bool showVersion{false};
     };
 }
+
+#endif
