@@ -15,8 +15,6 @@ int Application::run(const CliOptions& options) {
     while(true) {
         source_->receive(frame);
 
-        //std::cout << "got frame, size=" << frame.data.size() << "\n";
-
         count++;
 
         if (options.packet_count != 0 && options.packet_count >= count) {

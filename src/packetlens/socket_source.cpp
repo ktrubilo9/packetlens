@@ -5,7 +5,7 @@
 
 using packetlens::SocketSource;
 
-SocketSource::SocketSource(const std::string& interface) 
+SocketSource::SocketSource(std::string_view interface)
     :interface_(interface), fd_(-1), buffer_(BUFFER_SIZE) {
 
 }
@@ -81,8 +81,6 @@ void SocketSource::receive(RawFrame& frame) {
             "recv"
         );
     }
-
-    std::cerr << "recv = " << n << '\n';
 
     frame.timestamp = std::chrono::system_clock::now();
     frame.data.assign(buffer_.begin(), buffer_.begin() + n);
