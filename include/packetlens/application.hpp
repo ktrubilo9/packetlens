@@ -2,6 +2,8 @@
 #define APPLICATION_HPP
 
 #include <packetlens/cli_options.hpp>
+#include <packetlens/decoder.hpp>
+#include <packetlens/decoded_packet.hpp>
 #include <packetlens/packet_source.hpp>
 #include <packetlens/socket_source.hpp>
 
@@ -13,6 +15,7 @@ namespace packetlens {
      */
     class Application{
         std::unique_ptr<PacketSource> source_;
+        std::unique_ptr<Decoder> decoder_;
     public:
         Application() = default;
 

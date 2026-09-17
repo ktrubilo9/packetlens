@@ -9,6 +9,7 @@ add_executable(packetlens
     src/packetlens/cli.cpp
     src/packetlens/application.cpp
     src/packetlens/socket_source.cpp
+    src/packetlens/decoder.cpp
 )
 
 target_include_directories(packetlens PRIVATE
