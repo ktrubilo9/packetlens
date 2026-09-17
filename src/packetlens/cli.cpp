@@ -93,12 +93,12 @@ CliOptions CliParser::parse(int argc, char* argv[]) {
         }
     }
 
-    validate(options);
+    validate_(options);
 
     return options;
 }
 
-void CliParser::validate(const CliOptions& options) {
+void CliParser::validate_(const CliOptions& options) {
     if (options.showHelp || options.showVersion) {
         return;
     }

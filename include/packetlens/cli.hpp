@@ -7,7 +7,7 @@
 namespace packetlens{ 
     
     class CliParser{
-        static void validate(const CliOptions& options);
+        static void validate_(const CliOptions& options);
     public:
         static CliOptions parse(int argc, char* argv[]);
 

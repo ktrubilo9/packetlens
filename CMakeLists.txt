@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(packetlens 
     src/main.cpp
     src/packetlens/cli.cpp
+    src/packetlens/application.cpp
+    src/packetlens/socket_source.cpp
 )
 
 target_include_directories(packetlens PRIVATE

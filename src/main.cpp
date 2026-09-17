@@ -21,6 +21,8 @@ int run(int argc, char* argv[]) {
     const std::string PROGRAM_NAME = std::filesystem::path(argv[0]).filename().string();
 
     const auto options = CliParser::parse(argc, argv);
+
+    using packetlens::Application;
         
     if (options.showHelp) {
         CliParser::printHelp(PROGRAM_NAME);
