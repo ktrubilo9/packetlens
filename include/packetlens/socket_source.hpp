@@ -1,9 +1,11 @@
 #ifndef SOCKET_RECEIVER_HPP
 #define SOCKET_RECEIVER_HPP
 
+#include <packetlens/raw_frame.hpp>
 #include <packetlens/packet_source.hpp>
 
 #include <string>
+#include <vector>
 #include <sys/socket.h>
 #include <linux/if_packet.h>
 #include <arpa/inet.h>
@@ -13,13 +15,16 @@
 
 namespace packetlens {
     class SocketSource : public PacketSource {
+        static constexpr std::size_t BUFFER_SIZE = 65536;
         std::string interface_;
         int fd_; ///file descriptor
+
+        std::vector<std::uint8_t> buffer_;
     public:
-        explicit SocketSource(std::string_view interface);
+        explicit SocketSource(const std::string& interface);
 
         void open() override;
-        void receive(std::vector<uint8_t>& packet) override;
+        void receive(RawFrame& frame) override;
         void close() override;
 
         ~SocketSource();

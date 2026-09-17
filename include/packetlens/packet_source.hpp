@@ -1,6 +1,8 @@
 #ifndef PACKET_SOURCE_HPP
 #define PACKET_SOURCE_HPP
 
+#include <packetlens/raw_frame.hpp>
+
 #include <string_view>
 #include <vector>
 
@@ -15,7 +17,7 @@ namespace packetlens {
         virtual ~PacketSource() = default;
         
         virtual void open() = 0;
-        virtual void receive(std::vector<uint8_t>& packet) = 0;
+        virtual void receive(RawFrame& frame) = 0;
         virtual void close() = 0;
     };
 }

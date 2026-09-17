@@ -1,11 +1,12 @@
 #include <packetlens/socket_source.hpp>
 
 #include <system_error>
+#include <cstring>
 
 using packetlens::SocketSource;
 
-SocketSource::SocketSource(std::string_view interface) 
-    :interface_(interface), fd_(-1) {
+SocketSource::SocketSource(const std::string& interface) 
+    :interface_(interface), fd_(-1), buffer_(BUFFER_SIZE) {
 
 }
 
@@ -50,10 +51,41 @@ void SocketSource::open() {
             "bind"
         );
     }
+
+    packet_mreq mr{};
+    mr.mr_ifindex = static_cast<int>(ifindex);
+    mr.mr_type = PACKET_MR_PROMISC;
+
+    if (setsockopt(fd_, SOL_PACKET, PACKET_ADD_MEMBERSHIP, &mr, sizeof(mr)) < 0) {
+        close();
+        throw std::system_error(
+            errno, 
+            std::system_category(), 
+            "setsockopt PROMISC"
+        );
+    }
 }
 
-void SocketSource::receive(std::vector<uint8_t>& packet) {
+void SocketSource::receive(RawFrame& frame) {
+    const ssize_t n = ::recv(
+        fd_,
+        buffer_.data(),
+        buffer_.size(),
+        0
+    );
 
+    if (n < 0) {
+        throw std::system_error(
+            errno,
+            std::system_category(),
+            "recv"
+        );
+    }
+
+    std::cerr << "recv = " << n << '\n';
+
+    frame.timestamp = std::chrono::system_clock::now();
+    frame.data.assign(buffer_.begin(), buffer_.begin() + n);
 }
 
 void SocketSource::close() {
