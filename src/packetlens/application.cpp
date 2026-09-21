@@ -20,57 +20,57 @@ int Application::run(const CliOptions& options) {
 
         const auto packet = decoder_->decode(frame);
 
-        std::cout << "Packet #" << count
-                  << " | size=" << frame.data.size()
-                  << " | valid=" << std::boolalpha << packet.valid
-                  << '\n';
+        // std::cout << "Packet #" << count
+        //           << " | size=" << frame.data.size()
+        //           << " | valid=" << std::boolalpha << packet.valid
+        //           << '\n';
 
-        if (packet.ethernet) {
-            const auto& eth = *packet.ethernet;
+        // if (packet.ethernet) {
+        //     const auto& eth = *packet.ethernet;
 
-            std::cout << "  Ethernet"
-                      << " | ether_type=0x"
-                      << std::hex << eth.ether_type
-                      << std::dec
-                      << '\n';
-        }
+        //     std::cout << "  Ethernet"
+        //               << " | ether_type=0x"
+        //               << std::hex << eth.ether_type
+        //               << std::dec
+        //               << '\n';
+        // }
 
-        if (packet.ipv4) {
-            const auto& ip = *packet.ipv4;
+        // if (packet.ipv4) {
+        //     const auto& ip = *packet.ipv4;
 
-            std::cout << "  IPv4"
-                      << " | ttl=" << static_cast<int>(ip.ttl)
-                      << " | protocol=" << static_cast<int>(ip.protocol)
-                      << " | header_length="
-                      << static_cast<int>(ip.header_length)
-                      << '\n';
-        }
+        //     std::cout << "  IPv4"
+        //               << " | ttl=" << static_cast<int>(ip.ttl)
+        //               << " | protocol=" << static_cast<int>(ip.protocol)
+        //               << " | header_length="
+        //               << static_cast<int>(ip.header_length)
+        //               << '\n';
+        // }
 
-        if (packet.tcp) {
-            const auto& tcp = *packet.tcp;
+        // if (packet.tcp) {
+        //     const auto& tcp = *packet.tcp;
 
-            std::cout << "  TCP"
-                      << " | "
-                      << tcp.source_port
-                      << " -> "
-                      << tcp.destination_port
-                      << " | seq="
-                      << tcp.sequence_number
-                      << '\n';
-        }
+        //     std::cout << "  TCP"
+        //               << " | "
+        //               << tcp.source_port
+        //               << " -> "
+        //               << tcp.destination_port
+        //               << " | seq="
+        //               << tcp.sequence_number
+        //               << '\n';
+        // }
 
-        if (packet.udp) {
-            const auto& udp = *packet.udp;
+        // if (packet.udp) {
+        //     const auto& udp = *packet.udp;
 
-            std::cout << "  UDP"
-                      << " | "
-                      << udp.source_port
-                      << " -> "
-                      << udp.destination_port
-                      << " | length="
-                      << udp.length
-                      << '\n';
-        }
+        //     std::cout << "  UDP"
+        //               << " | "
+        //               << udp.source_port
+        //               << " -> "
+        //               << udp.destination_port
+        //               << " | length="
+        //               << udp.length
+        //               << '\n';
+        // }
 
 
         if (options.packet_count != 0 && options.packet_count <= count) {
