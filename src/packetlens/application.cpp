@@ -14,8 +14,7 @@ int Application::run(const CliOptions& options) {
     RawFrame frame;
 
     unsigned long long count = 0;
-    while(true) {
-        source_->receive(frame);
+    while (source_->receive(frame)) {
 
         count++;
 

@@ -33,19 +33,27 @@ namespace packetlens {
     public:
         explicit SocketSource(std::string_view interface);
 
+        SocketSource(const SocketSource&) = delete;
+        SocketSource& operator=(const SocketSource&) = delete;
+        SocketSource(SocketSource&& other) noexcept;
+        SocketSource& operator=(SocketSource&& other) noexcept;
+
         /**
+         * @throws std::logic_error if already open
          * @throws std::system_error if socket creation, binding, or configuration fails
          */
         void open() override;
 
         /**
          * @brief Receive a single packet from the network interface
+         * @return true for a received frame; live packet sockets do not signal EOF
+         * @throws std::logic_error if not open (including after being moved from)
          * @throws std::system_error if receive operation fails
          */
-        void receive(RawFrame& frame) override;
-        void close() override;
+        bool receive(RawFrame& frame) override;
+        void close() noexcept override;
 
-        ~SocketSource();
+        ~SocketSource() override;
     };
 }
 

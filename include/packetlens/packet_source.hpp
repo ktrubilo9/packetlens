@@ -17,7 +17,9 @@ namespace packetlens {
         virtual ~PacketSource() = default;
         
         virtual void open() = 0;
-        virtual void receive(RawFrame& frame) = 0;
+        /// Returns true for a frame, false at end of input; errors throw.
+        /// On EOF or an I/O error, frame is unchanged.
+        virtual bool receive(RawFrame& frame) = 0;
         virtual void close() = 0;
     };
 }
