@@ -77,6 +77,7 @@ void Decoder::decode_ipv4(const std::uint8_t* data, std::size_t size, DecodedPac
 
     const std::uint16_t fragmentation = read_u16_be(data, 6);
     const std::uint16_t fragment_offset = fragmentation & 0x1fff;
+    const bool more_fragments = (fragmentation & 0x2000) != 0;
 
     if (fragment_offset != 0) {
         return;
@@ -87,7 +88,7 @@ void Decoder::decode_ipv4(const std::uint8_t* data, std::size_t size, DecodedPac
 
     switch(ipv4.protocol) {
         case kIpProtocolTcp:
-            if (transport_size < kMinimumIpv4HeaderSize) {
+            if (transport_size < kMinimumTcpHeaderSize) {
                 return;
             }
             {
@@ -127,9 +128,9 @@ void Decoder::decode_ipv4(const std::uint8_t* data, std::size_t size, DecodedPac
                 udp.length =
                     read_u16_be(transport_data, 4);
 
-                // reject malformed datagrams
+                // In the first fragment, UDP length includes subsequent fragments.
                 if (udp.length < kUdpHeaderSize ||
-                    udp.length > transport_size) {
+                    (!more_fragments && udp.length > transport_size)) {
                     return;
                 }
 

@@ -4,14 +4,15 @@ using packetlens::CliOptions;
 using packetlens::CliParser;
 
 #include <getopt.h>
+#include <charconv>
 #include <stdexcept>
 #include <iostream>
 
 CliOptions CliParser::parse(int argc, char* argv[]) {
     CliOptions options;
 
-    // reset in case parse() is called more than once.
-    optind = 1;
+    // GNU getopt needs zero to reset its internal cursor as well as argv indexing.
+    optind = 0;
 
     const option longOptions[] = {
         {"interface", required_argument, nullptr, 'i'},
@@ -55,16 +56,18 @@ CliOptions CliParser::parse(int argc, char* argv[]) {
         case 'o':
             options.outputFile = optarg;
             break;
-        case 'c':
-            try {
-                const auto count = std::stoull(optarg);
-                options.packet_count = static_cast<std::size_t>(count);
-            } catch (const std::exception&) {
+        case 'c': {
+            const std::string_view value(optarg);
+            std::size_t count = 0;
+            const auto parsed = std::from_chars(value.data(), value.data() + value.size(), count);
+            if (parsed.ec != std::errc{} || parsed.ptr != value.data() + value.size()) {
                 throw std::invalid_argument(
                     "invalid packet count: " + std::string(optarg)
                 );
             }
+            options.packet_count = count;
             break;
+        }
         case 'j':
             options.json = true;
             break;
@@ -91,6 +94,10 @@ CliOptions CliParser::parse(int argc, char* argv[]) {
                 "invalid command-line argument"
             );
         }
+    }
+
+    if (optind < argc) {
+        throw std::invalid_argument("unexpected argument: " + std::string(argv[optind]));
     }
 
     validate_(options);

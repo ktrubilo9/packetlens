@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.19)
 project(packetlens VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -25,3 +25,14 @@ target_compile_options(packetlens PRIVATE
     -Wextra
     -Wpedantic
 )
+
+include(CTest)
+if(BUILD_TESTING)
+    if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/Catch2/CMakeLists.txt")
+        message(FATAL_ERROR
+            "Catch2 is missing. Run: git submodule update --init --recursive "
+            "or configure with -DBUILD_TESTING=OFF.")
+    endif()
+    add_subdirectory(external/Catch2 EXCLUDE_FROM_ALL)
+    add_subdirectory(tests)
+endif()
