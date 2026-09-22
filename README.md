@@ -7,6 +7,7 @@ header information.
 ## Features
 
 - Live packet capture from a selected network interface.
+- Classic PCAP 2.4 input with Ethernet frames.
 - Ethernet II and IPv4 header decoding.
 - TCP ports, sequence numbers, and UDP datagram lengths.
 - Optional packet count limit.
@@ -29,7 +30,7 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build --parallel
 ```
 
-For an existing clone, fetch Catch2 with `git submodule update --init --recursive`.
+For an existing clone, fetch fmt and Catch2 with `git submodule update --init --recursive`.
 To build without tests, add `-DBUILD_TESTING=OFF` to the CMake configuration command.
 
 ## Usage
@@ -43,9 +44,18 @@ sudo ./build/packetlens --interface eth0 --count 10
 Replace `eth0` with your interface name. Omit `--count` to capture until interrupted
 with Ctrl+C.
 
+Read a capture file (no root privileges required):
+
+```sh
+./build/packetlens --read tests/fixtures/sample_udp.pcap
+```
+
+Packet timestamps are displayed in UTC with microsecond precision.
+
 | Option | Description |
 | --- | --- |
 | `-i, --interface <name>` | Network interface to capture from |
+| `-r, --read <file>` | Read Ethernet packets from a classic PCAP file |
 | `-c, --count <number>` | Stop after N packets; 0 means unlimited |
 | `-h, --help` | Show help |
 | `-V, --version` | Show version |
@@ -71,8 +81,8 @@ UndefinedBehaviorSanitizer.
 
 ## Limitations
 
-- PCAP input, BPF filters, file/JSON output, and quiet/verbose modes are not
+- BPF filters, file/JSON output, and quiet/verbose modes are not
   implemented, although their options appear in `--help`.
 - IPv6, ARP, and ICMP are identified but their headers are not decoded.
 - Checksum validation and IP fragment reassembly are not supported.
-- The printed `valid` field applies only to the Ethernet header.
+- PCAPNG is not supported; captured PCAP frames are limited to 65,536 bytes.

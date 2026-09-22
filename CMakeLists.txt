@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/external/fmt/CMakeLists.txt")
+    message(FATAL_ERROR "fmt is missing. Run: git submodule update --init --recursive")
+endif()
+add_subdirectory(external/fmt EXCLUDE_FROM_ALL)
+
 add_executable(packetlens 
     src/main.cpp
     src/packetlens/cli.cpp
@@ -12,7 +17,10 @@ add_executable(packetlens
     src/packetlens/socket_source.cpp
     src/packetlens/decoder.cpp
     src/packetlens/pcap_source.cpp
+    src/packetlens/text_formatter.cpp
 )
+
+target_link_libraries(packetlens PRIVATE fmt::fmt)
 
 target_include_directories(packetlens PRIVATE
     ${PROJECT_SOURCE_DIR}/include

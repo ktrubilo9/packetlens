@@ -1,5 +1,6 @@
 #include <packetlens/application.hpp>
 #include <packetlens/raw_frame.hpp>
+#include <packetlens/text_formatter.hpp>
 #include <iostream>
 
 using packetlens::Application;
@@ -22,7 +23,8 @@ int Application::run(const CliOptions& options) {
         count++;
         const auto packet = decoder_->decode(frame);
 
-        
+        std::cout << TextFormatter::format(frame, packet) << "\n";
+
         if (options.packet_count != 0 && options.packet_count <= count) {
             break;
         }
