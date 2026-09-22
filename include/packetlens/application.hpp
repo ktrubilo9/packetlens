@@ -6,6 +6,7 @@
 #include <packetlens/decoded_packet.hpp>
 #include <packetlens/packet_source.hpp>
 #include <packetlens/socket_source.hpp>
+#include <packetlens/pcap_source.hpp>
 
 #include <memory>
 

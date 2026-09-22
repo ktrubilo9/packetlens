@@ -1,8 +1,10 @@
 add_executable(packetlens_tests
     cli_tests.cpp
     decoder_tests.cpp
+    pcap_source_tests.cpp
     ${PROJECT_SOURCE_DIR}/src/packetlens/cli.cpp
     ${PROJECT_SOURCE_DIR}/src/packetlens/decoder.cpp
+    ${PROJECT_SOURCE_DIR}/src/packetlens/pcap_source.cpp
 )
 target_include_directories(packetlens_tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(packetlens_tests PRIVATE Catch2::Catch2WithMain)

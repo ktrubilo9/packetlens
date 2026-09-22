@@ -2,11 +2,16 @@
 #include <packetlens/byte_utils.hpp>
 #include <stdexcept>
 #include <array>
+#include <chrono>
+#include <utility>
 
 using packetlens::PcapSource;
 
 namespace {
     constexpr std::uint16_t SUPPORTED_MAJOR = 2;
+    constexpr std::uint16_t SUPPORTED_MINOR = 4;
+    // Match the maximum frame buffer currently used by SocketSource.
+    constexpr std::uint32_t MAX_CAPTURED_LENGTH = 65536;
     constexpr std::uint32_t LINKTYPE_ETHERNET = 1;
     constexpr std::uint32_t LINKTYPE_MASK = 0x03FFFFFF;
 }
@@ -76,7 +81,63 @@ std::uint32_t PcapSource::read_u32(
 }
 
 bool PcapSource::receive(RawFrame& frame) {
-    return true;
+    if (!file_.is_open()) {
+        throw std::logic_error("pcap source is not open");
+    }
+
+    try {
+        std::array<std::uint8_t, 16> header{};
+        file_.read(reinterpret_cast<char*>(header.data()), header.size());
+        if (file_.bad()) {
+            throw std::runtime_error("failed to read PCAP record header");
+        }
+        if (file_.gcount() == 0 && file_.eof()) {
+            return false;
+        }
+        if (file_.gcount() != static_cast<std::streamsize>(header.size())) {
+            throw std::runtime_error("truncated PCAP record header");
+        }
+
+        const auto seconds = read_u32(header.data(), 0);
+        const auto fraction = read_u32(header.data(), 4);
+        const auto captured_length = read_u32(header.data(), 8);
+        const auto original_length = read_u32(header.data(), 12);
+        const bool microseconds = timestamp_precision_ == TimestampPrecision::Microseconds;
+        if (fraction >= (microseconds ? 1000000u : 1000000000u)) {
+            throw std::runtime_error("invalid PCAP timestamp fraction");
+        }
+        if (captured_length > snaplen_ || captured_length > original_length) {
+            throw std::runtime_error("invalid PCAP captured length");
+        }
+        if (captured_length > MAX_CAPTURED_LENGTH) {
+            throw std::runtime_error("PCAP captured length exceeds supported limit of 65536 bytes");
+        }
+
+        RawFrame next;
+        next.data.resize(captured_length);
+        if (captured_length != 0) {
+            file_.read(reinterpret_cast<char*>(next.data.data()), captured_length);
+            if (file_.bad()) {
+                throw std::runtime_error("failed to read PCAP packet data");
+            }
+            if (file_.gcount() != static_cast<std::streamsize>(captured_length)) {
+                throw std::runtime_error("truncated PCAP packet data");
+            }
+        }
+
+        // Both PCAP fields are unsigned 32-bit, widen before converting to nanoseconds.
+        const auto elapsed = std::chrono::seconds{static_cast<std::int64_t>(seconds)}
+            + std::chrono::nanoseconds{static_cast<std::int64_t>(fraction)
+                                      * (microseconds ? 1000 : 1)};
+        next.timestamp = std::chrono::system_clock::time_point{
+            std::chrono::duration_cast<std::chrono::system_clock::duration>(elapsed)};
+        frame = std::move(next);
+        return true;
+    } catch (...) {
+        // A partial/invalid record leaves no reliable next-record boundary.
+        close();
+        throw;
+    }
 }
 
 void PcapSource::open() {
@@ -104,13 +165,16 @@ void PcapSource::open() {
 
         const auto major = read_u16(header.data(), 4);
         const auto minor = read_u16(header.data(), 6);
-        if (major != SUPPORTED_MAJOR) {
+        if (major != SUPPORTED_MAJOR || minor != SUPPORTED_MINOR) {
             throw std::runtime_error(
                 "unsupported PCAP version: " + std::to_string(major) +
                 "." + std::to_string(minor));
         }
 
         snaplen_ = read_u32(header.data(), 16);
+        if (snaplen_ == 0) {
+            throw std::runtime_error("invalid PCAP snaplen: 0");
+        }
 
         const auto linktype = read_u32(header.data(), 20) & LINKTYPE_MASK;
         if (linktype != LINKTYPE_ETHERNET) {

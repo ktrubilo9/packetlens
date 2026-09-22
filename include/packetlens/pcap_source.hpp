@@ -4,6 +4,8 @@
 #include <packetlens/packet_source.hpp>
 #include <fstream>
 #include <string>
+#include <string_view>
+#include <cstdint>
 
 namespace packetlens {
     class PcapSource : public PacketSource {
@@ -29,6 +31,10 @@ namespace packetlens {
         PcapSource& operator=(PcapSource&& other) = default;
 
         void open() override;
+        /// Reads captured Ethernet bytes unchanged, with the timestamp from the file.
+        /// Returns false only at a record boundary at EOF. Frames up to 65536 bytes
+        /// are supported. On malformed input or I/O failure, closes the source and
+        /// throws, leaving frame unchanged; open() can restart from the beginning.
         bool receive(RawFrame& frame) override;
         void close() noexcept override;
 
