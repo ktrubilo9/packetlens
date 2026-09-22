@@ -1,5 +1,5 @@
-#include <packetlens/decoder.hpp>
-#include <packetlens/byte_utils.hpp>
+#include <packetlens/decode/decoder.hpp>
+#include <packetlens/detail/byte_utils.hpp>
 
 using namespace packetlens;
 

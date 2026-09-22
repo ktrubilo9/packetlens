@@ -1,4 +1,4 @@
-#include <packetlens/cli.hpp>
+#include <packetlens/cli/cli.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

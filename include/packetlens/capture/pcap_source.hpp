@@ -1,7 +1,7 @@
 #ifndef PCAP_SOURCE_HPP
 #define PCAP_SOURCE_HPP
 
-#include <packetlens/packet_source.hpp>
+#include <packetlens/capture/packet_source.hpp>
 #include <fstream>
 #include <string>
 #include <string_view>

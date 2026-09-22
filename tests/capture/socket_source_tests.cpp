@@ -1,4 +1,4 @@
-#include <packetlens/socket_source.hpp>
+#include <packetlens/capture/socket_source.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>

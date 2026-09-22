@@ -1,12 +1,12 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#include <packetlens/cli_options.hpp>
-#include <packetlens/decoder.hpp>
-#include <packetlens/decoded_packet.hpp>
-#include <packetlens/packet_source.hpp>
-#include <packetlens/socket_source.hpp>
-#include <packetlens/pcap_source.hpp>
+#include <packetlens/cli/cli_options.hpp>
+#include <packetlens/decode/decoder.hpp>
+#include <packetlens/decode/decoded_packet.hpp>
+#include <packetlens/capture/packet_source.hpp>
+#include <packetlens/capture/socket_source.hpp>
+#include <packetlens/capture/pcap_source.hpp>
 
 #include <memory>
 

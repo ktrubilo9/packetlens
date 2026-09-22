@@ -1,4 +1,4 @@
-#include <packetlens/text_formatter.hpp>
+#include <packetlens/output/text_formatter.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
 

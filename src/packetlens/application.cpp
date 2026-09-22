@@ -1,6 +1,6 @@
 #include <packetlens/application.hpp>
-#include <packetlens/raw_frame.hpp>
-#include <packetlens/text_formatter.hpp>
+#include <packetlens/capture/raw_frame.hpp>
+#include <packetlens/output/text_formatter.hpp>
 #include <iostream>
 
 using packetlens::Application;

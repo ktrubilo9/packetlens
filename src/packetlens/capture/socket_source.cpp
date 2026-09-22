@@ -1,4 +1,4 @@
-#include <packetlens/socket_source.hpp>
+#include <packetlens/capture/socket_source.hpp>
 
 #include <system_error>
 #include <cerrno>

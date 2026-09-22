@@ -1,4 +1,4 @@
-#include <packetlens/text_formatter.hpp>
+#include <packetlens/output/text_formatter.hpp>
 
 #include <fmt/chrono.h>
 #include <fmt/format.h>

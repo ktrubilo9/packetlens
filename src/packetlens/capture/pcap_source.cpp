@@ -1,5 +1,5 @@
-#include <packetlens/pcap_source.hpp>
-#include <packetlens/byte_utils.hpp>
+#include <packetlens/capture/pcap_source.hpp>
+#include <packetlens/detail/byte_utils.hpp>
 #include <stdexcept>
 #include <array>
 #include <chrono>

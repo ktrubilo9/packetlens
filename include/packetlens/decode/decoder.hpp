@@ -1,8 +1,8 @@
 #ifndef DECODER_HPP
 #define DECODER_HPP
 
-#include <packetlens/raw_frame.hpp>
-#include <packetlens/decoded_packet.hpp>
+#include <packetlens/capture/raw_frame.hpp>
+#include <packetlens/decode/decoded_packet.hpp>
 
 namespace packetlens {
     /// Ethernet II header consists of destination MAC, source MAC and EtherType.

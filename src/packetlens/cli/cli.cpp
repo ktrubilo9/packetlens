@@ -1,4 +1,4 @@
-#include <packetlens/cli.hpp>
+#include <packetlens/cli/cli.hpp>
 
 using packetlens::CliOptions;
 using packetlens::CliParser;

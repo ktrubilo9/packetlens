@@ -1,7 +1,7 @@
 #ifndef PACKET_SOURCE_HPP
 #define PACKET_SOURCE_HPP
 
-#include <packetlens/raw_frame.hpp>
+#include <packetlens/capture/raw_frame.hpp>
 
 #include <string_view>
 #include <vector>

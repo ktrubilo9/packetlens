@@ -1,8 +1,8 @@
 #ifndef SOCKET_RECEIVER_HPP
 #define SOCKET_RECEIVER_HPP
 
-#include <packetlens/raw_frame.hpp>
-#include <packetlens/packet_source.hpp>
+#include <packetlens/capture/raw_frame.hpp>
+#include <packetlens/capture/packet_source.hpp>
 
 #include <string>
 #include <string_view>

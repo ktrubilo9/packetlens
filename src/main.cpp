@@ -1,6 +1,6 @@
 #include <filesystem>
 #include <iostream>
-#include <packetlens/cli.hpp>
+#include <packetlens/cli/cli.hpp>
 #include <packetlens/application.hpp>
 
 using packetlens::CliParser;

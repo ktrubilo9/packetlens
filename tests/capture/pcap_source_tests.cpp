@@ -1,5 +1,5 @@
-#include <packetlens/pcap_source.hpp>
-#include <packetlens/decoder.hpp>
+#include <packetlens/capture/pcap_source.hpp>
+#include <packetlens/decode/decoder.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>

@@ -12,12 +12,12 @@ add_subdirectory(external/fmt EXCLUDE_FROM_ALL)
 
 add_executable(packetlens 
     src/main.cpp
-    src/packetlens/cli.cpp
+    src/packetlens/cli/cli.cpp
     src/packetlens/application.cpp
-    src/packetlens/socket_source.cpp
-    src/packetlens/decoder.cpp
-    src/packetlens/pcap_source.cpp
-    src/packetlens/text_formatter.cpp
+    src/packetlens/capture/socket_source.cpp
+    src/packetlens/decode/decoder.cpp
+    src/packetlens/capture/pcap_source.cpp
+    src/packetlens/output/text_formatter.cpp
 )
 
 target_link_libraries(packetlens PRIVATE fmt::fmt)

@@ -1,7 +1,7 @@
 #ifndef CLI_HPP
 #define CLI_HPP
 
-#include <packetlens/cli_options.hpp>
+#include <packetlens/cli/cli_options.hpp>
 #include <string_view>
 
 namespace packetlens{ 
