@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <filesystem>
 #include <iostream>
 #include <packetlens/cli/cli.hpp>
@@ -9,12 +10,11 @@ int run(int argc, char* argv[]);
 
 int main(int argc, char* argv[]) {
     try {
-        run(argc, argv);
+        return run(argc, argv);
     } catch(const std::exception& e) {
         std::cerr << "error: " << e.what() << "\n";
-        return -1;
+        return EXIT_FAILURE;
     }
-    return 0;
 }
 
 int run(int argc, char* argv[]) {

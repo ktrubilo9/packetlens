@@ -5,8 +5,17 @@ using packetlens::CliParser;
 
 #include <getopt.h>
 #include <charconv>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
+#include <string>
+
+namespace {
+    [[noreturn]] void throw_unsupported_option(std::string_view option) {
+        throw std::invalid_argument(
+            "option " + std::string(option) + " is not implemented"
+        );
+    }
+}
 
 CliOptions CliParser::parse(int argc, char* argv[]) {
     CliOptions options;
@@ -51,11 +60,9 @@ CliOptions CliParser::parse(int argc, char* argv[]) {
             options.inputFile = optarg;
             break;
         case 'f':
-            options.filter = optarg;
-            break;
+            throw_unsupported_option("--filter");
         case 'o':
-            options.outputFile = optarg;
-            break;
+            throw_unsupported_option("--output");
         case 'c': {
             const std::string_view value(optarg);
             std::size_t count = 0;
@@ -69,14 +76,11 @@ CliOptions CliParser::parse(int argc, char* argv[]) {
             break;
         }
         case 'j':
-            options.json = true;
-            break;
+            throw_unsupported_option("--json");
         case 'q':
-            options.quiet = true;
-            break;
+            throw_unsupported_option("--quiet");
         case 'v':
-            options.verbose = true;
-            break;
+            throw_unsupported_option("--verbose");
         case 'h':
             options.showHelp = true;
             break;
@@ -124,18 +128,6 @@ void CliParser::validate_(const CliOptions& options) {
             "--interface and --read cannot be used together"
         );
     }
-
-    if (!options.filter.empty() && !hasInterface) {
-        throw std::invalid_argument(
-            "--filter requires --interface"
-        );
-    }
-
-    if (options.verbose && options.quiet) {
-        throw std::invalid_argument(
-            "--verbose and --quiet cannot be used together"
-        );
-    }
 }
 
 void CliParser::printHelp(std::string_view programName)
@@ -146,13 +138,6 @@ void CliParser::printHelp(std::string_view programName)
         << "Input:\n"
         << "  -i, --interface <name>   Capture packets from network interface\n"
         << "  -r, --read <file>        Read packets from PCAP file\n"
-        << "  -f, --filter <expr>      Apply BPF capture filter (live capture only)\n"
-        << "\n"
-        << "Output:\n"
-        << "  -o, --output <file>      Write output to file\n"
-        << "  -j, --json               Output data in JSON format\n"
-        << "  -q, --quiet              Suppress normal output\n"
-        << "  -v, --verbose            Enable verbose output\n"
         << "\n"
         << "Other:\n"
         << "  -c, --count <number>     Stop after N packets (0 = unlimited)\n"

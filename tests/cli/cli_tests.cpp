@@ -20,54 +20,89 @@ packetlens::CliOptions parse(std::initializer_list<std::string> arguments) {
     argv.push_back(nullptr);
     return packetlens::CliParser::parse(static_cast<int>(storage.size()), argv.data());
 }
+
+void check_invalid_argument(
+    std::initializer_list<std::string> arguments,
+    const std::string& expected_message
+) {
+    try {
+        parse(arguments);
+        FAIL("expected std::invalid_argument");
+    } catch (const std::invalid_argument& error) {
+        CHECK(error.what() == expected_message);
+    }
+}
 }
 
 TEST_CASE("CLI accepts an interface with default options", "[cli]") {
     const auto options = parse({"--interface", "eth0"});
     CHECK(options.interface == "eth0");
     CHECK(options.inputFile.empty());
-    CHECK(options.filter.empty());
-    CHECK(options.outputFile.empty());
     CHECK(options.packet_count == 0);
-    CHECK_FALSE(options.json);
-    CHECK_FALSE(options.quiet);
-    CHECK_FALSE(options.verbose);
     CHECK_FALSE(options.showHelp);
     CHECK_FALSE(options.showVersion);
 }
 
 TEST_CASE("CLI parses short and long option values", "[cli]") {
-    SECTION("short options and grouped flags") {
-        const auto options = parse({"-i", "lo", "-f", "tcp port 443", "-o", "out.json",
-                                    "-c", "42", "-jv"});
+    SECTION("short options") {
+        const auto options = parse({"-i", "lo", "-c", "42"});
         CHECK(options.interface == "lo");
-        CHECK(options.filter == "tcp port 443");
-        CHECK(options.outputFile == "out.json");
         CHECK(options.packet_count == 42);
-        CHECK(options.json);
-        CHECK(options.verbose);
     }
     SECTION("long options with equals syntax") {
-        const auto options = parse({"--interface=eth0", "--filter=udp", "--output=out.json",
-                                    "--count=42", "--json", "--verbose"});
+        const auto options = parse({"--interface=eth0", "--count=42"});
         CHECK(options.interface == "eth0");
-        CHECK(options.filter == "udp");
-        CHECK(options.outputFile == "out.json");
         CHECK(options.packet_count == 42);
-        CHECK(options.json);
-        CHECK(options.verbose);
     }
-    SECTION("file input and quiet output") {
-        const auto options = parse({"-r", "capture.pcap", "-q"});
+    SECTION("file input") {
+        const auto options = parse({"-r", "capture.pcap"});
         CHECK(options.inputFile == "capture.pcap");
         CHECK(options.interface.empty());
-        CHECK(options.quiet);
     }
-    SECTION("long file input and quiet output") {
-        const auto options = parse({"--read", "capture.pcap", "--quiet"});
-        CHECK(options.inputFile == "capture.pcap");
-        CHECK(options.quiet);
-    }
+}
+
+TEST_CASE("CLI explicitly rejects options planned for a later release", "[cli]") {
+    check_invalid_argument(
+        {"-i", "lo", "-f", "tcp"},
+        "option --filter is not implemented"
+    );
+    check_invalid_argument(
+        {"--interface=lo", "--filter=tcp"},
+        "option --filter is not implemented"
+    );
+    check_invalid_argument(
+        {"-i", "lo", "-o", "out.txt"},
+        "option --output is not implemented"
+    );
+    check_invalid_argument(
+        {"--interface=lo", "--output=out.txt"},
+        "option --output is not implemented"
+    );
+
+    check_invalid_argument(
+        {"-i", "lo", "-j"},
+        "option --json is not implemented"
+    );
+    check_invalid_argument(
+        {"-i", "lo", "--json"},
+        "option --json is not implemented"
+    );
+    check_invalid_argument(
+        {"-i", "lo", "-q"},
+        "option --quiet is not implemented"
+    );
+    check_invalid_argument(
+        {"-i", "lo", "--quiet"},
+        "option --quiet is not implemented"
+    );
+    check_invalid_argument(
+        {"-i", "lo", "-v"},
+        "option --verbose is not implemented"
+    );
+    check_invalid_argument(
+        {"-i", "lo", "--verbose"},
+        "option --verbose is not implemented"
+    );
 }
 
 TEST_CASE("CLI help and version do not require a source", "[cli]") {
@@ -82,8 +117,6 @@ TEST_CASE("CLI rejects invalid option combinations", "[cli]") {
     CHECK_THROWS_AS(parse({"-i", ""}), std::invalid_argument);
     CHECK_THROWS_AS(parse({"-r", ""}), std::invalid_argument);
     CHECK_THROWS_AS(parse({"-i", "lo", "-r", "capture.pcap"}), std::invalid_argument);
-    CHECK_THROWS_AS(parse({"-r", "capture.pcap", "-f", "tcp"}), std::invalid_argument);
-    CHECK_THROWS_AS(parse({"-i", "lo", "-qv"}), std::invalid_argument);
 }
 
 TEST_CASE("CLI rejects unknown options and missing option values", "[cli]") {
@@ -118,11 +151,10 @@ TEST_CASE("CLI rejects positional arguments", "[cli]") {
 
 TEST_CASE("CLI can be reused after successful and failed parsing", "[cli]") {
     CHECK(parse({"-i", "first", "-c", "7"}).packet_count == 7);
-    CHECK_THROWS_AS(parse({"-i", "lo", "-cz", "-q"}), std::invalid_argument);
+    CHECK_THROWS_AS(parse({"-i", "lo", "-cz"}), std::invalid_argument);
     const auto options = parse({"-i", "second"});
     CHECK(options.interface == "second");
     CHECK(options.packet_count == 0);
-    CHECK_FALSE(options.quiet);
     // An error in a grouped option can leave getopt's internal cursor in argv.
     CHECK_THROWS_AS(parse({"-zi", "lo"}), std::invalid_argument);
     CHECK(parse({"-i", "third"}).interface == "third");

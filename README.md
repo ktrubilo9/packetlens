@@ -12,6 +12,8 @@ header information.
 - TCP ports, sequence numbers, and UDP datagram lengths.
 - Optional packet count limit.
 
+The current version is `0.1.0`.
+
 ## Requirements
 
 - Linux
@@ -81,8 +83,8 @@ UndefinedBehaviorSanitizer.
 
 ## Limitations
 
-- BPF filters, file/JSON output, and quiet/verbose modes are not
-  implemented, although their options appear in `--help`.
+- BPF filters, file/JSON output, and quiet/verbose modes are not implemented.
+  Their reserved command-line options are rejected with an explicit error.
 - IPv6, ARP, and ICMP are identified but their headers are not decoded.
 - Checksum validation and IP fragment reassembly are not supported.
 - PCAPNG is not supported; captured PCAP frames are limited to 65,536 bytes.
